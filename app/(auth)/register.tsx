@@ -1,6 +1,6 @@
 // Register.tsx
 import InputField from "@/components/InputField";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -20,6 +20,7 @@ const Register = () => {
   const [city, setCity] = useState("");
   const [role, setRole] = useState<"jobseeker" | "employer">("jobseeker");
   const [cvFile, setCvFile] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleUploadCV = () => {
     // Here you can integrate react-native-document-picker or expo-document-picker
@@ -29,32 +30,12 @@ const Register = () => {
   };
 
   const handleRegister = () => {
-    Alert.alert(
-      "Register",
-      JSON.stringify(
-        {
-          firstName,
-          mobile,
-          email,
-          pin,
-          address,
-          city,
-          role,
-          cvFile,
-        },
-        null,
-        2
-      )
-    );
+    router.push("/(home)/home");
   };
-  const navigation = useNavigation();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => navigation.goBack()}
-      >
+      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
         <Text>Back</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Register</Text>
