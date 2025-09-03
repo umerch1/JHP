@@ -1,10 +1,10 @@
 // Onboard.tsx
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Onboard = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -12,7 +12,7 @@ const Onboard = () => {
 
       <TouchableOpacity
         style={styles.registerBtn}
-        onPress={() => navigation.navigate("register")}
+        onPress={() => router.push("/(auth)/register")}
       >
         <Text style={styles.btnText}>Register</Text>
       </TouchableOpacity>
