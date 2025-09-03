@@ -14,6 +14,12 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
+        name="login"
+        options={{
+          title: "login",
+        }}
+      />
+      <Stack.Screen
         name="register"
         options={{
           title: "Register",
