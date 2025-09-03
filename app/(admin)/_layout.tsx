@@ -20,6 +20,7 @@ export default function RootLayout() {
           options={{ drawerLabel: "Admin Dashboard", title: "Admin Dashboard" }}
         />
         <Drawer.Screen name="profile" options={{ drawerLabel: "Profile" }} />
+        <Drawer.Screen name="logout" options={{ drawerLabel: "Logout" }} />
       </Drawer>
     </GestureHandlerRootView>
   );

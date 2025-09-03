@@ -19,9 +19,9 @@ export const userApi = createApi({
             }),
             invalidatesTags: ["Admin", "User"],
         }),
-        userLogin: builder.mutation<{ message: string; user_id: string }, { email: string; pin: string }>({
+        userLogin: builder.mutation<{ message: string; user: any }, { email: string; pin: string }>({
             query: (credentials) => ({
-                url: "/login",
+                url: "users/login",
                 method: "POST",
                 body: credentials,
             }),

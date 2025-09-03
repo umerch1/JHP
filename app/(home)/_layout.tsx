@@ -16,18 +16,13 @@ export default function RootLayout() {
         }}
       >
         <Drawer.Screen
-          name="home/index"
+          name="home"
           options={{ drawerLabel: "Home", title: "The Job Hunting Portal App" }}
         />
-        <Drawer.Screen
-          name="home/profile"
-          options={{ drawerLabel: "Profile" }}
-        />
+        <Drawer.Screen name="profile" options={{ drawerLabel: "Profile" }} />
         <Drawer.Screen name="home/jobs" options={{ drawerLabel: "Jobs" }} />
-        <Drawer.Screen
-          name="home/settings"
-          options={{ drawerLabel: "Settings" }}
-        />
+        <Drawer.Screen name="settings" options={{ drawerLabel: "Settings" }} />
+        <Drawer.Screen name="logout" options={{ drawerLabel: "Logout" }} />
       </Drawer>
     </GestureHandlerRootView>
   );

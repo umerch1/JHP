@@ -1,6 +1,7 @@
 import InputField from "@/components/InputField";
 import Loader from "@/components/Loader";
 import { useRegisterUserMutation } from "@/services";
+import { setemail } from "@/slices/authSlice";
 import * as DocumentPicker from "expo-document-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -59,7 +60,7 @@ const Register = () => {
       };
 
       const response = await registerUser(payload).unwrap();
-      await dispatch({ type: "setemail", payload: email });
+      dispatch(setemail(email));
       console.log("Registration successful:", response);
       Alert.alert("Success", response.message);
       router.push("/(auth)/login");
