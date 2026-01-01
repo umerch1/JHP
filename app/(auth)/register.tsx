@@ -7,17 +7,21 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
 const Register = () => {
   type CvFileType = DocumentPicker.DocumentPickerAsset | null;
   const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
@@ -27,6 +31,7 @@ const Register = () => {
   const [cvFile, setCvFile] = useState<CvFileType | null>(null);
   const router = useRouter();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [submitting, setSubmitting] = useState(false);
 
   const handleUploadCV = async (): Promise<void> => {
     try {
@@ -48,9 +53,11 @@ const Register = () => {
   };
   const dispatch = useDispatch();
   const handleRegister = async () => {
+    setSubmitting(true);
     try {
       const payload = {
         firstName,
+        lastName,
         mobile,
         email,
         pin,
@@ -67,14 +74,21 @@ const Register = () => {
     } catch (err: any) {
       Alert.alert("Registration Failed", err?.data?.error || "Unknown error");
       console.log("Registration error:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      {isLoading && <Loader />}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      {isLoading || submitting ? <Loader /> : 
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        
         <Text style={styles.title}>📝 Register</Text>
 
         <InputField
@@ -82,6 +96,12 @@ const Register = () => {
           value={firstName}
           onChangeText={setFirstName}
           placeholder="Enter first name"
+        />
+        <InputField
+          label="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
+          placeholder="Enter Last name"
         />
 
         <InputField
@@ -179,8 +199,9 @@ const Register = () => {
             <Text style={styles.loginHighlight}>Login</Text>
           </Text>
         </TouchableOpacity>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </SafeAreaView>}
+    </KeyboardAvoidingView>
   );
 };
 

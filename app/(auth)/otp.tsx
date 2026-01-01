@@ -17,10 +17,13 @@ const Otp = () => {
   const role = useSelector((state: any) => state.auth.role);
   // Watch for success or error updates
   useEffect(() => {
-    if (isLoggedIn || role == "admin") {
+    // Only navigate to admin if the persisted role is explicitly 'admin'.
+    if (isLoggedIn && role === "admin") {
       router.navigate("/(admin)/home");
     } else if (isLoggedIn) {
-      router.push("/(home)/home");
+      // If logged in but not admin, route based on stored role (employer or jobseeker)
+      if (role === "employer") router.push("/(employer)/home");
+      else router.push("/(home)/home");
     }
 
     if (isSuccess && data) {
@@ -30,7 +33,10 @@ const Otp = () => {
       dispatch(setrole(data.user.role));
       if (data.user.role === "admin") {
         router.push("/(admin)/home");
-      } else {
+      } else if (data.user.role === "employer") {
+        router.push("/(employer)/home");
+      }else {
+        console.log("Navigating to home",data.user.role);
         router.push("/(home)/home");
       }
     }
@@ -41,14 +47,16 @@ const Otp = () => {
         (error as any)?.data?.error || (error as any)?.error || "Login failed";
       Alert.alert("❌ Error", errMsg);
     }
-  }, [isSuccess, data, error]);
+  }, [isSuccess, data, error, isLoggedIn, role]);
 
   const handleLogin = async () => {
     if (otp.length === 4) {
       try {
+        console.log("email_____",email,otp)
         await userLogin({ email, pin: otp }).unwrap();
       } catch (err: any) {
         const errMsg = err?.data?.error || "Something went wrong";
+        console.log("errMsg",err)
         Alert.alert("❌ Error", errMsg);
       }
     } else {

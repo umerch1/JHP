@@ -1,4 +1,5 @@
 import { authApi } from "@/services/authApi";
+import { jobsApi } from "@/services/jobsApi";
 import { userApi } from "@/services/userApi";
 import { authslice } from "@/slices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
     auth: authslice,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [jobsApi.reducerPath]: jobsApi.reducer,
 });
 
 // ✅ Persisted reducer
@@ -39,8 +41,8 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-        }).concat(authApi.middleware, userApi.middleware),
-});
+        }).concat(authApi.middleware, userApi.middleware, jobsApi.middleware),
+    });
 
 // ✅ Persistor
 export const persistor = persistStore(store);

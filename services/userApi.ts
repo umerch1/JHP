@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const userApi = createApi({
     reducerPath: "userApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://192.168.10.4:5000/", // 🔗 backend base URL
+        baseUrl: "http://192.168.2.107:5000/", // 🔗 backend base URL
         prepareHeaders: (headers) => {
             headers.set("Content-Type", "application/json");
             return headers;
@@ -14,22 +14,22 @@ export const userApi = createApi({
         // ✅ Approve User
         approveUser: builder.mutation({
             query: (id: string) => ({
-                url: `admin/approve/${id}`,
+                url: `/api/admin/approve/${id}`,
                 method: "POST",
             }),
             invalidatesTags: ["Admin", "User"],
         }),
         userLogin: builder.mutation<{ message: string; user: any }, { email: string; pin: string }>({
             query: (credentials) => ({
-                url: "users/login",
+                url: "/api/user/login",
                 method: "POST",
                 body: credentials,
             }),
             invalidatesTags: ["User", "Admin"],
-        }),
+    }),
         // ✅ Fetch All Users (optional, to list users)
         fetchUsers: builder.query({
-            query: () => "users/pending",
+            query: () => "/api/user/pending",
             providesTags: ["User", "Admin"],
         }),
     }),

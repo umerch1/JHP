@@ -1,5 +1,5 @@
 import { useApproveUserMutation, useFetchUsersQuery } from "@/services/userApi";
-import React from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -9,7 +9,8 @@ import {
 } from "react-native";
 
 const AdminDashboard = () => {
-  const { data: pendingUser, isLoading } = useFetchUsersQuery({});
+  const { data: pendingUser, isLoading, refetch, isFetching } = useFetchUsersQuery({});
+  const [refreshing, setRefreshing] = useState(false);
   const [approveUser, { isLoading: approving }] = useApproveUserMutation();
 
   if (isLoading) {
@@ -33,6 +34,7 @@ const AdminDashboard = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Pending Users</Text>
+      <Text>sdfds</Text>
       <FlatList
         data={pendingUser}
         keyExtractor={(item) => item._id}
@@ -55,6 +57,17 @@ const AdminDashboard = () => {
             </TouchableOpacity>
           </View>
         )}
+        refreshing={isFetching || refreshing}
+        onRefresh={async () => {
+          setRefreshing(true);
+          try {
+            if (refetch) await refetch();
+          } catch (e) {
+            console.error("Refresh failed", e);
+          } finally {
+            setRefreshing(false);
+          }
+        }}
       />
     </View>
   );
