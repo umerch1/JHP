@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const jobsApi = createApi({
     reducerPath: "jobsApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://192.168.2.107:5000",
+        baseUrl: "http://192.168.43.167:5000",
         // prepareHeaders: (headers, { getState }) => {
         //     headers.set("Content-Type", "application/json");
         //     const token = (getState() as any).auth?.token;
@@ -21,11 +21,11 @@ export const jobsApi = createApi({
             query: () => "/api/jobs",
             providesTags: ["Jobs"],
         }),
-        applyJob: builder.mutation<any, { jobId: string; applicant: any }>({
-            query: ({ jobId, applicant }) => ({
-                url: `/api/jobs/${jobId}/apply`,
+        applyJob: builder.mutation<any, { jobId: string; userId: string }>({
+            query: ({ jobId, userId }) => ({
+                url: `/api/jobs/${jobId}/apply/${userId}`,
                 method: "POST",
-                body: applicant,
+                body: {},
             }),
             invalidatesTags: ["Jobs"],
         }),

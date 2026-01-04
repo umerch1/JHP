@@ -19,15 +19,33 @@ import { useSelector } from "react-redux";
 
 function Jobs() {
   const { data: jobs = [], isLoading, isError, refetch } = useFetchJobsQuery();
+
   const [applyJob, { isLoading: applying }] = useApplyJobMutation();
   const user = useSelector((state: RootState) => state.auth.user);
+
+  const currentUserId = user?.id ?? user?._id ?? null;
+
+  const processedJobs = (jobs || []).map((job: any) => {
+    const applicants = job.applicants ?? [];
+    const applicantIds = Array.isArray(applicants)
+      ? applicants.map((a: any) => (typeof a === "string" ? a : a?.userId ?? a?.id ?? a?._id ?? String(a)))
+      : [];
+    const hasApplied = applicantIds.includes(currentUserId);
+    const filteredApplicants = applicantIds.filter((id: string) => id !== currentUserId);
+    return { ...job, applicants: filteredApplicants, applied: hasApplied || job.applied };
+  });
 
   const [appliedIds, setAppliedIds] = useState<Record<string, boolean>>({});
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
 
   const handleApply = async (jobId: string) => {
+    const userId = currentUserId;
+    if (!userId) {
+      Alert.alert("Error", "User not found. Please login.");
+      return;
+    }
     try {
-      await applyJob({ jobId, applicant: { userId: user?.id ?? user?._id ?? null, email: user?.email ?? null } }).unwrap();
+      await applyJob({ jobId, userId }).unwrap();
       Alert.alert("Applied", "Your application has been submitted.");
       setAppliedIds((s) => ({ ...s, [jobId]: true }));
       refetch();
@@ -44,7 +62,7 @@ function Jobs() {
         <ThemedText style={styles.empty}>No jobs available</ThemedText>
       ) : (
         <FlatList
-          data={jobs}
+          data={processedJobs}
           keyExtractor={(item) => item.id ?? item._id ?? String(item.jobId)}
           renderItem={({ item }) => {
             const id = item.id ?? item._id ?? item.jobId ?? String(Math.random());
