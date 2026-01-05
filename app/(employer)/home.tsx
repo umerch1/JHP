@@ -1,4 +1,5 @@
-import { useFetchUsersQuery } from "@/services/userApi";
+import { useFetchApplicantsQuery } from "@/services";
+import { RootState } from "@/store";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,11 +12,22 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 const EmployerHome = () => {
   const router = useRouter();
-  const { data, isLoading, isFetching, refetch } = useFetchUsersQuery({});
+  const user = useSelector((state: RootState) => state.auth.user);
+  const employerId = user?.id ?? user?._id ?? null;
+  const { data, isLoading, isFetching, refetch, error } = useFetchApplicantsQuery(employerId ?? "");
   const [refreshing, setRefreshing] = useState(false);
+
+  if (!employerId) {
+    return (
+      <View style={styles.center}>
+        <Text>Employer not found. Please login.</Text>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -24,10 +36,8 @@ const EmployerHome = () => {
       </View>
     );
   }
-
-  const jobseekers = Array.isArray(data)
-    ? data.filter((u: any) => u.role === "jobseeker")
-    : [];
+  const totalApplicants = data?.totalApplicants ?? 0;
+  const applicants = Array.isArray(data?.applicants) ? data!.applicants : [];
 
   const handleViewResume = async (item: any) => {
     // try several common resume keys
@@ -74,14 +84,14 @@ const EmployerHome = () => {
       </View>
 
       <FlatList
-        data={jobseekers}
+        data={applicants}
         keyExtractor={(item: any) => item._id || item.email || Math.random().toString()}
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }: { item: any }) => (
           <View style={styles.card}>
             <Text style={styles.name}>{item.firstName} {item.lastName ?? ''}</Text>
             <Text style={styles.email}>{item.email}</Text>
-            <Text style={styles.meta}>City: {item.city ?? '—'}</Text>
+            <Text style={styles.meta}>Role: {item.role ?? '—'}</Text>
 
             <View style={styles.actionsRow}>
               <TouchableOpacity
@@ -111,6 +121,11 @@ const EmployerHome = () => {
             setRefreshing(false);
           }
         }}
+        ListHeaderComponent={() => (
+          <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600' }}>Total applicants: {totalApplicants}</Text>
+          </View>
+        )}
         ListEmptyComponent={() => (
           <View style={styles.center}>
             <Text>No job seekers found.</Text>

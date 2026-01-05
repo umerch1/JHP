@@ -1,5 +1,7 @@
 import InputField from "@/components/InputField";
 import Loader from "@/components/Loader";
+import { useCreateJobMutation } from "@/services";
+import { RootState } from "@/store";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -10,6 +12,7 @@ import {
   TouchableOpacity
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 const CreatePost = () => {
   const router = useRouter();
@@ -19,6 +22,9 @@ const CreatePost = () => {
   const [salary, setSalary] = useState("");
   const [employmentType, setEmploymentType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [createJob] = useCreateJobMutation();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const employerId = user?.id ?? user?._id ?? null;
 
   const handleSubmit = async () => {
     if (!title || !description) {
@@ -28,22 +34,19 @@ const CreatePost = () => {
 
     setLoading(true);
     try {
-      const payload = { title, description, location, salary, employmentType };
-      // Backend base URL (matches services/userApi.ts)
-      const res = await fetch("http://192.168.2.107:5000/api/jobs/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (!employerId) {
+        Alert.alert("Error", "Employer not found. Please login again.");
+        return;
+      }
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || data?.message || "Request failed");
-
+      const payload = { title, description, location, salary, employmentType, employerId };
+      const data = await createJob(payload).unwrap();
       Alert.alert("Success", data.message || "Job post created");
       router.replace("/(employer)/home");
     } catch (err: any) {
       console.error(err);
-      Alert.alert("Error", err?.message || "Failed to create post");
+      const message = err?.data?.message || err?.error || err?.message || (typeof err === "string" ? err : JSON.stringify(err));
+      Alert.alert("Error", message || "Failed to create post");
     } finally {
       setLoading(false);
     }

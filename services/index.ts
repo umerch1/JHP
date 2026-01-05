@@ -1,6 +1,6 @@
 import { useRegisterUserMutation } from "./authApi";
-import { useApplyJobMutation, useFetchJobsQuery } from "./jobsApi";
+import { useApplyJobMutation, useCreateJobMutation, useFetchApplicantsQuery, useFetchJobsQuery } from "./jobsApi";
 import { useApproveUserMutation, useFetchUsersQuery } from "./userApi";
 
-export { useApplyJobMutation, useApproveUserMutation, useFetchJobsQuery, useFetchUsersQuery, useRegisterUserMutation };
+export { useApplyJobMutation, useApproveUserMutation, useCreateJobMutation, useFetchApplicantsQuery, useFetchJobsQuery, useFetchUsersQuery, useRegisterUserMutation };
 
