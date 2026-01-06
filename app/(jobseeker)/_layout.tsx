@@ -21,7 +21,6 @@ export default function RootLayout() {
         />
         <Drawer.Screen name="profile" options={{ drawerLabel: "Profile" }} />
         <Drawer.Screen name="jobs" options={{ drawerLabel: "Jobs" }} />
-        <Drawer.Screen name="settings" options={{ drawerLabel: "Settings" }} />
         <Drawer.Screen name="logout" options={{ drawerLabel: "Logout" }} />
       </Drawer>
     </GestureHandlerRootView>

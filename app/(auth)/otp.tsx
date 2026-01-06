@@ -91,6 +91,9 @@ useEffect(() => {
           {isLoading ? "Logging in..." : "Login"}
         </Text>
       </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop:10}} onPress={()=>router.replace("/(auth)/login")}>
+            <Text> move to Login</Text>
+            </TouchableOpacity>
     </View>
   );
 };
