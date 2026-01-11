@@ -1,6 +1,6 @@
 import InputField from "@/components/InputField";
 import Loader from "@/components/Loader";
-import { useRegisterUserMutation } from "@/services";
+import { useRegisterUserMutation, useUploadCvMutation } from "@/services";
 import { setemail } from "@/slices/authSlice";
 import * as DocumentPicker from "expo-document-picker";
 import { useRouter } from "expo-router";
@@ -42,7 +42,7 @@ const Register = () => {
 
       if (result.assets && result.assets.length > 0) {
         setCvFile(result.assets[0]);
-        Alert.alert("CV Uploaded", `${result.assets[0].name} selected`);
+        Alert.alert("CV", `${result.assets[0].name} selected`);
       } else {
         Alert.alert("Cancelled", "No file selected");
       }
@@ -52,9 +52,26 @@ const Register = () => {
     }
   };
   const dispatch = useDispatch();
+  const [uploadCv, { isLoading: uploading }] = useUploadCvMutation();
+  // Handle Registration
   const handleRegister = async () => {
     setSubmitting(true);
     try {
+      let cvPath: string | undefined = undefined;
+      if (cvFile) {
+        try {
+          // DocumentPicker asset has { uri, name, type }
+          const uploadRes: any = await uploadCv({ uri: cvFile.uri, name: cvFile.name, type: cvFile.mimeType }).unwrap();
+          cvPath = uploadRes?.file?.path;
+
+        } catch (e) {
+          console.log("CV upload error:", e);
+          Alert.alert("Upload Failed", "Unable to upload CV. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const payload = {
         firstName,
         lastName,
@@ -64,7 +81,9 @@ const Register = () => {
         address,
         city,
         role,
+        ...(cvPath ? { cv: cvPath } : {}),
       };
+      console.log("Registration payload:", payload);
 
       const response = await registerUser(payload).unwrap();
       dispatch(setemail(email));
@@ -84,7 +103,7 @@ const Register = () => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      {isLoading || submitting ? <Loader /> : 
+      {isLoading || submitting || uploading ? <Loader /> : 
 
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">

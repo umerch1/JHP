@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/constants/url";
 import { useFetchApplicantsQuery } from "@/services";
 import { RootState } from "@/store";
 import { useRouter } from "expo-router";
@@ -20,6 +21,7 @@ const EmployerHome = () => {
   const employerId = user?.id ?? user?._id ?? null;
   const { data, isLoading, isFetching, refetch, error } = useFetchApplicantsQuery(employerId ?? "");
   const [refreshing, setRefreshing] = useState(false);
+  console.log("Applicants data:", data, "Error:", error);
 
   if (!employerId) {
     return (
@@ -62,8 +64,8 @@ const EmployerHome = () => {
     }
 
     try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) await Linking.openURL(url);
+      const supported = await Linking.canOpenURL(`${BASE_URL}/${url}`);
+      if (supported) await Linking.openURL(`${BASE_URL}/${url}`);
       else Alert.alert("Can't open", "Unable to open resume URL.");
     } catch (err) {
       console.error(err);

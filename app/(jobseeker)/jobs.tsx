@@ -13,7 +13,9 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  TextInput,
   View,
+  Text,
 } from "react-native";
 import { useSelector } from "react-redux";
 
@@ -35,6 +37,17 @@ function Jobs() {
     return { ...job, applicants: filteredApplicants, applied: hasApplied || job.applied };
   });
 
+  const [search, setSearch] = useState<string>("");
+
+  const filteredJobs = processedJobs.filter((job: any) => {
+    if (!search || String(search).trim() === "") return true;
+    const q = String(search).toLowerCase();
+    const title = String(job.title ?? job.jobTitle ?? "").toLowerCase();
+    const company = String(job.company ?? job.employer ?? "").toLowerCase();
+    const location = String(job.location ?? "").toLowerCase();
+    return title.includes(q) || company.includes(q) || location.includes(q);
+  });
+
   const [appliedIds, setAppliedIds] = useState<Record<string, boolean>>({});
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
 
@@ -50,7 +63,7 @@ function Jobs() {
       setAppliedIds((s) => ({ ...s, [jobId]: true }));
       refetch();
     } catch (err) {
-      Alert.alert("Error", "Unable to apply. Please try again.");
+      Alert.alert("Error", err?.data?.message || "Failed to apply for the job.");
     }
   };
 
@@ -58,11 +71,22 @@ function Jobs() {
 
   return (
     <ThemedView style={styles.container}>
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchLabel}>Search jobs</Text>
+        <TextInput
+          placeholder="Search jobs, companies, locations..."
+          value={search}
+          onChangeText={setSearch}
+          style={styles.searchInput}
+          returnKeyType="search"
+        />
+      </View>
+
       {jobs.length === 0 ? (
         <ThemedText style={styles.empty}>No jobs available</ThemedText>
       ) : (
         <FlatList
-          data={processedJobs}
+          data={filteredJobs}
           keyExtractor={(item) => item.id ?? item._id ?? String(item.jobId)}
           renderItem={({ item }) => {
             const id = item.id ?? item._id ?? item.jobId ?? String(Math.random());
@@ -143,6 +167,8 @@ function Jobs() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  searchContainer: { padding: 12, backgroundColor: "#fff" },
+  searchInput: { backgroundColor: "#f3f4f6", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   empty: { margin: 20, textAlign: "center" },
   card: {
     backgroundColor: "#fff",
@@ -154,6 +180,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+  },
+  searchLabel:{
+    color:"green",
+  fontSize:16,
+  marginBottom:6,
+  fontWeight:"600",
   },
   row: { flexDirection: "row", alignItems: "center" },
   avatarWrap: { width: 64, height: 64, marginRight: 12 },

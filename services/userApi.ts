@@ -1,9 +1,11 @@
+
+import { BASE_URL } from "@/constants/url";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const userApi = createApi({
     reducerPath: "userApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://192.168.2.107:5000/", // 🔗 backend base URL
+        baseUrl: BASE_URL,
         prepareHeaders: (headers) => {
             headers.set("Content-Type", "application/json");
             return headers;

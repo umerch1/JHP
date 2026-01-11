@@ -34,10 +34,14 @@ const AdminDashboard = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Pending Users</Text>
-      <Text>sdfds</Text>
       <FlatList
         data={pendingUser}
         keyExtractor={(item) => item._id}
+        ListEmptyComponent={()=>(
+          <View style={styles.center}>
+            <Text>No pending users found</Text>
+            </View>
+        )}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.name}>{item.firstName}</Text>
