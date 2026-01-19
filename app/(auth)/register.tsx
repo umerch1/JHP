@@ -1,23 +1,27 @@
 import InputField from "@/components/InputField";
 import Loader from "@/components/Loader";
-import { useRegisterUserMutation } from "@/services";
+import { useRegisterUserMutation, useUploadCvMutation } from "@/services";
 import { setemail } from "@/slices/authSlice";
 import * as DocumentPicker from "expo-document-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
 const Register = () => {
   type CvFileType = DocumentPicker.DocumentPickerAsset | null;
   const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
@@ -27,6 +31,7 @@ const Register = () => {
   const [cvFile, setCvFile] = useState<CvFileType | null>(null);
   const router = useRouter();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [submitting, setSubmitting] = useState(false);
 
   const handleUploadCV = async (): Promise<void> => {
     try {
@@ -37,7 +42,7 @@ const Register = () => {
 
       if (result.assets && result.assets.length > 0) {
         setCvFile(result.assets[0]);
-        Alert.alert("CV Uploaded", `${result.assets[0].name} selected`);
+        Alert.alert("CV", `${result.assets[0].name} selected`);
       } else {
         Alert.alert("Cancelled", "No file selected");
       }
@@ -47,17 +52,38 @@ const Register = () => {
     }
   };
   const dispatch = useDispatch();
+  const [uploadCv, { isLoading: uploading }] = useUploadCvMutation();
+  // Handle Registration
   const handleRegister = async () => {
+    setSubmitting(true);
     try {
+      let cvPath: string | undefined = undefined;
+      if (cvFile) {
+        try {
+          // DocumentPicker asset has { uri, name, type }
+          const uploadRes: any = await uploadCv({ uri: cvFile.uri, name: cvFile.name, type: cvFile.mimeType }).unwrap();
+          cvPath = uploadRes?.file?.path;
+
+        } catch (e) {
+          console.log("CV upload error:", e);
+          Alert.alert("Upload Failed", "Unable to upload CV. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const payload = {
         firstName,
+        lastName,
         mobile,
         email,
         pin,
         address,
         city,
         role,
+        ...(cvPath ? { cv: cvPath } : {}),
       };
+      console.log("Registration payload:", payload);
 
       const response = await registerUser(payload).unwrap();
       dispatch(setemail(email));
@@ -67,14 +93,21 @@ const Register = () => {
     } catch (err: any) {
       Alert.alert("Registration Failed", err?.data?.error || "Unknown error");
       console.log("Registration error:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      {isLoading && <Loader />}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      {isLoading || submitting || uploading ? <Loader /> : 
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        
         <Text style={styles.title}>📝 Register</Text>
 
         <InputField
@@ -82,6 +115,12 @@ const Register = () => {
           value={firstName}
           onChangeText={setFirstName}
           placeholder="Enter first name"
+        />
+        <InputField
+          label="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
+          placeholder="Enter Last name"
         />
 
         <InputField
@@ -179,8 +218,9 @@ const Register = () => {
             <Text style={styles.loginHighlight}>Login</Text>
           </Text>
         </TouchableOpacity>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </SafeAreaView>}
+    </KeyboardAvoidingView>
   );
 };
 

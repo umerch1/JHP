@@ -37,7 +37,8 @@ export default function RootLayout() {
         >
           <Stack>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(home)" options={{ headerShown: false }} />
+            <Stack.Screen name="(employer)" options={{ headerShown: false }} />
+            <Stack.Screen name="(jobseeker)" options={{ headerShown: false }} />
             <Stack.Screen name="(admin)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>

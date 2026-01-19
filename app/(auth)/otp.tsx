@@ -16,39 +16,47 @@ const Otp = () => {
   const isLoggedIn = useSelector((state: any) => state.auth.user);
   const role = useSelector((state: any) => state.auth.role);
   // Watch for success or error updates
-  useEffect(() => {
-    if (isLoggedIn || role == "admin") {
-      router.navigate("/(admin)/home");
-    } else if (isLoggedIn) {
-      router.push("/(home)/home");
-    }
+useEffect(() => {
+  if (isSuccess && data) {
+    Alert.alert("✅ Success", data.message || "Login successful");
 
-    if (isSuccess && data) {
-      Alert.alert("✅ Success", data.message || "Login successful");
+    dispatch(setUser(data.user));
+    dispatch(setrole(data.user.role));
+  }
 
-      dispatch(setUser(data.user));
-      dispatch(setrole(data.user.role));
-      if (data.user.role === "admin") {
-        router.push("/(admin)/home");
-      } else {
-        router.push("/(home)/home");
-      }
-    }
+  if (error) {
+    const errMsg =
+      (error as any)?.data?.error ||
+      (error as any)?.error ||
+      "Login failed";
 
-    if (error) {
-      // RTK Query error structure
-      const errMsg =
-        (error as any)?.data?.error || (error as any)?.error || "Login failed";
-      Alert.alert("❌ Error", errMsg);
-    }
-  }, [isSuccess, data, error]);
+    Alert.alert("❌ Error", errMsg);
+  }
+}, [isSuccess, data, error]);
+
+useEffect(() => {
+  if (!isLoggedIn || !role) return;
+
+  console.log("Navigating with role:", role);
+
+  if (role === "admin") {
+    router.replace("/(admin)/home");
+  } else if (role === "jobseeker") {
+    router.replace("/(jobseeker)/home");
+  } else if (role === "employer") {
+    router.replace("/(employer)/home");
+  }
+}, [isLoggedIn, role]);
+
 
   const handleLogin = async () => {
     if (otp.length === 4) {
       try {
+        console.log("email_____",email,otp)
         await userLogin({ email, pin: otp }).unwrap();
       } catch (err: any) {
         const errMsg = err?.data?.error || "Something went wrong";
+        console.log("errMsg",err)
         Alert.alert("❌ Error", errMsg);
       }
     } else {
@@ -83,6 +91,9 @@ const Otp = () => {
           {isLoading ? "Logging in..." : "Login"}
         </Text>
       </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop:10}} onPress={()=>router.replace("/(auth)/login")}>
+            <Text> move to Login</Text>
+            </TouchableOpacity>
     </View>
   );
 };

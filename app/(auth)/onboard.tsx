@@ -37,10 +37,10 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   registerBtn: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: "#04080fff",
     paddingVertical: 14,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: 20,
   },
   btnText: {
     color: "#fff",

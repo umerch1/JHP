@@ -14,15 +14,31 @@ import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
+
+  const validateEmail = (value: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(value);
+  };
 
   const handleNext = () => {
     if (!email) {
-      alert("Please enter your email");
+      setError("Please enter your email");
       return;
     }
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    setError("");
     dispatch(setemail(email));
     router.push("/(auth)/otp");
+  };
+
+  const handleReset = () => {
+    setEmail("");
+    setError("");
   };
 
   const handleRegister = () => {
@@ -46,16 +62,24 @@ const Login = () => {
           placeholder="Enter your email"
           placeholderTextColor="#94A3B8"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (error) setError("");
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
         />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {/* Next Button */}
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-
+        {/* Buttons row: Reset and Next equally spaced */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.buttonSmall} onPress={handleReset}>
+            <Text style={styles.buttonText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.buttonSmall, { marginLeft: 12 }]} onPress={handleNext}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
         {/* Register Link */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don’t have an account? </Text>
@@ -111,11 +135,28 @@ const styles = StyleSheet.create({
     color: "#0F172A",
     marginBottom: 20,
   },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  buttonSmall: {
+    flex: 1,
+    backgroundColor: "#3B82F6",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
   button: {
     backgroundColor: "#3B82F6",
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
+    marginBottom:20
   },
   buttonText: {
     color: "#FFFFFF",
